@@ -7,4 +7,4 @@ Requires python with the [scrapy](https://scrapy.org) package.
 
 ### Execution
 Invoking ipt-spider:
-    scrapy crawl ipt -t json -o  - > iptEmployees.json
+`scrapy crawl ipt -t json -o  - > iptEmployees.json`
