@@ -1,9 +1,9 @@
 import scrapy
 from unidecode import unidecode
 
-# Command Line call to start cralwer:
+# Command Line call to start cralwer (owerwrites export)
 # >
-# > scrapy crawl ipt -o iptEmployees.json 
+# > scrapy crawl ipt -t json -o  - > iptEmployees.json
 # >
 
 class QuotesSpider(scrapy.Spider):
@@ -16,7 +16,7 @@ class QuotesSpider(scrapy.Spider):
 
     def parse(self, response):
         for employee in response.css('ul.og-grid li'):
-            
+
             # Remove Doktor.
             code = employee.css('a').xpath('@data-title').extract_first()
             if "Dr. " in code:
@@ -27,7 +27,7 @@ class QuotesSpider(scrapy.Spider):
             vorname = code.split(' ', 1)[0]
             nachname = code.split(' ', 1)[1]
 
-            # first char from vorname, first two chars from nachname to build code. 
+            # first char from vorname, first two chars from nachname to build code.
             code = vorname[:1] + nachname [:2]
 
             yield {
