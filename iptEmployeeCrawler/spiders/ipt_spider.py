@@ -14,26 +14,40 @@ class QuotesSpider(scrapy.Spider):
         for url in urls:
             yield scrapy.Request(url=url, callback=self.parse)
 
+    def derive_code(self, name):
+        ### Create employee abbreviation ###
+        # Remove Umlaute.
+        fullname = unidecode(name)
+
+        # Remove Titles from names.
+        if "Dr. " in fullname:
+            fullname = fullname.replace("Dr. ","")
+
+        # Derive first and last name.
+        firstname = fullname.split(' ', 1)[0].strip();
+        lastname = fullname.split(' ', 1)[1].strip();
+
+        # Ugly exceptions.
+        if 'Schwarb' == lastname:
+            code = 'RSW'
+        elif 'David Konatschnig' == fullname:
+            code = 'DKN'
+        else:
+            # first char from vorname, first two chars from nachname to build code.
+            code = firstname[:1] + lastname [:2]
+        return code
+
     def parse(self, response):
         for employee in response.css('ul.og-grid li'):
 
-            # Remove Doktor.
-            code = employee.css('a').xpath('@data-title').extract_first()
-            if "Dr. " in code:
-                code = code.replace("Dr. ","")
-
-            code = unidecode(code)
-
-            vorname = code.split(' ', 1)[0]
-            nachname = code.split(' ', 1)[1]
-
-            # first char from vorname, first two chars from nachname to build code.
-            code = vorname[:1] + nachname [:2]
+            # Get employee element.
+            name = employee.css('a').xpath('@data-title').extract_first().strip()
+            code = self.derive_code(name)
 
             yield {
                 'code': code.upper(),
-                'name': employee.css('a').xpath('@data-title').extract_first(),
-                'function': employee.css('a').xpath('@data-funktion').extract_first(),
-                'slogan': employee.css('a').xpath('@data-blockquote').extract_first(),
-                'picture': employee.css('a').xpath('@data-largesrc').extract_first(),
+                'name': employee.css('a').xpath('@data-title').extract_first().strip(),
+                'function': employee.css('a').xpath('@data-funktion').extract_first().strip(),
+                'slogan': employee.css('a').xpath('@data-blockquote').extract_first().strip(),
+                'picture': employee.css('a').xpath('@data-largesrc').extract_first().strip(),
             }
