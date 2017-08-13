@@ -32,6 +32,10 @@ class QuotesSpider(scrapy.Spider):
             code = 'RSW'
         elif 'David Konatschnig' == fullname:
             code = 'DKN'
+        elif 'Barbara Schaller-Piller' == fullname:
+            code = 'BSA'
+        elif 'Lukas Keller' == fullname:
+            code = 'LKL'
         else:
             # first char from vorname, first two chars from nachname to build code.
             code = firstname[:1] + lastname [:2]
