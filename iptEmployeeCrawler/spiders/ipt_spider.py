@@ -34,24 +34,28 @@ class QuotesSpider(scrapy.Spider):
             code = 'DKN'
         elif 'Barbara Schaller-Piller' == fullname:
             code = 'BSA'
-        elif 'Lukas Keller' == fullname:
-            code = 'LKL'
         else:
             # first char from vorname, first two chars from nachname to build code.
             code = firstname[:1] + lastname [:2]
         return code
 
     def parse(self, response):
+        employeeList = []
         for employee in response.css('ul.og-grid li'):
 
             # Get employee element.
             name = employee.css('a').xpath('@data-title').extract_first().strip()
             code = self.derive_code(name)
 
-            yield {
+            employeeEntry = {
                 'code': code.upper(),
                 'name': employee.css('a').xpath('@data-title').extract_first().strip(),
                 'function': employee.css('a').xpath('@data-funktion').extract_first().strip(),
                 'slogan': employee.css('a').xpath('@data-blockquote').extract_first().strip(),
                 'picture': employee.css('a').xpath('@data-largesrc').extract_first().strip(),
             }
+            employeeList.append(employeeEntry)
+
+            # Sort List
+            employeeList = sorted(employeeList, key=lambda k: k['code'])
+        return employeeList
